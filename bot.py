@@ -17,7 +17,8 @@ import math
 from io import BytesIO
 import inspect
 import urllib.parse
-import re
+import common
+from common import command, send, is_botowner
 
 bot = discord.Client(status=discord.Status.dnd, activity=discord.Game(name="Starting..."))
 errorarray = []
@@ -43,14 +44,6 @@ def read_config():
             config[key] = value
             
 read_config()
-
-async def send(message, text=None, embed=None):
-    await message.channel.send(text, embed=embed)
-
-async def fetch(url, agent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'):
-    async with ClientSession(headers={'User-Agent': agent}) as session:
-        async with session.get(url) as response:
-            return await response.read()
 
 async def get_last_attachment(message):
     last_attachment = None
@@ -243,13 +236,9 @@ async def random_game():
         await bot.change_presence(activity=game)
         await asyncio.sleep(300)
 
-commands = {}
-
-def command(auth=None, aliases=None):
-    def inner(func):
-        name = func.__name__.lstrip('_')
-        commands[name] = [func, auth, aliases]
-    return inner
+import vtext
+import v_intcom
+import core
 
 @bot.event
 async def on_ready():
@@ -302,13 +291,13 @@ async def on_message(message):
         arguments = None
         clean_arguments = None
     command = commanda.split(' ', 1)[0]
-    if command in commands:
-        func = commands[command]
+    if command in common.commands:
+        func = common.commands[command]
     else:
         # check if it's an alias
-        for c, p in commands.items():
+        for c, p in common.commands.items():
             if p[2] != None and command in p[2]:
-                func = commands[c]
+                func = common.commands[c]
                 break
         else:
             return # it's not an alias, and thus, an invalid command. if you want, you can put code here to signal that the command entered was invalid, instead of just a return
@@ -330,242 +319,6 @@ def manage_messages(message):
         return True
     return message.author.guild_permissions.manage_messages
 
-def is_botowner(message):
-    return message.author.id == 155651120344203265
-
-@command()
-async def hello(bot, message, **kwargs):
-    await send(message, ":wave:")
-
-@command(aliases=['internal','intdef','intdefine','internaldefine','internaldef', 'int.scr', 'int.sc', 'intscr', 'intsc'])
-async def _int(bot, message, **kwargs):
-    if kwargs['arguments'] == None:
-        await send(message, "Please enter a command name.")
-        return
-    keyword = kwargs['arguments']
-    data = await fetch("https://tolp.nl/v_intcom/api/v1/json/?command=" + urllib.parse.quote(keyword))
-    jsonl = json.loads(data)
-    try:
-        try:
-            thing = jsonl["error"]
-        except KeyError:
-            thing = None		
-        if thing:
-            await send(message, jsonl["error"]["message"])
-            return
-        if jsonl["color"] == "t" or jsonl["color"] == "w":
-            em = discord.Embed(title='VVVVVV',colour=discord.Color.lighter_grey())
-        elif jsonl["color"] == "b":
-            em = discord.Embed(title='VVVVVV',colour=discord.Color.dark_blue())
-        elif jsonl["color"] == "o":
-            em = discord.Embed(title='VVVVVV',colour=discord.Color.orange())
-        elif jsonl["color"] == "r":
-            em = discord.Embed(title='VVVVVV',colour=discord.Color.red())
-        else:
-            em = discord.Embed(title='VVVVVV',colour=discord.Color.lighter_grey())
-        tempstring = "{}({})"
-        if not jsonl["brackets"]:
-            tempstring = "{}"
-        em.add_field(name="Description:", value=jsonl["description"])
-        em.add_field(name="Usage:", value=tempstring.format(jsonl["name"],str(','.join(map(str, [x["name"] for x in jsonl["args"]])))))
-        if jsonl["args"] != []:
-            temparray = []
-            for i in jsonl["args"]:
-                if i["type"] == "T":
-                    type = "Text"
-                elif i["type"] == "t":
-                    type = "Optional text"
-                elif i["type"] == "N":
-                    type = "Number"
-                elif i["type"] == "n":
-                    type = "Optional number"
-                else:
-                    type = "Unknown"
-                temparray.append("{} - {} ({})".format(i["name"], i["description"], type))
-            em.add_field(name="Arguments:", value=str('\n'.join(map(str, temparray))))
-        extra = None
-        if jsonl["name"] == "gamestate":
-            extra = "[Gamestate list](https://glaceon.ca/V/lists/#glist)"
-        elif jsonl["name"] == "createentity":
-            extra = "[Entity list](https://glaceon.ca/V/lists/#celist)"
-        if extra:
-            em.add_field(name="Extra information:", value=extra)
-        await send(message, embed=em)
-    except IndexError:
-        await send(message, "No results.")
-    except discord.errors.HTTPException:
-        await send(message, "Response too large!")
-
-async def dovtext(passedargs,scr):
-    colors = {
-        "gray":(174,174,174),
-        "grey":(174,174,174),
-        "cyan":(164,164,255),
-        "viridian":(164,164,255),
-        "red":(255,60,60),
-        "vermilion":(255,60,60),
-        "green":(144,255,144),
-        "verdigris":(144,255,144),
-        "yellow":(229,229,120),
-        "vitellary":(229,229,120),
-        "blue":(95,95,255),
-        "victoria":(95,95,255),
-        "pink":(255,134,255),
-        "purple":(255,134,255),
-        "violet":(255,134,255),
-        "orange":(255,130,20),
-        "darkaquamarine": (19,174,174),
-        "darkgreen": (19,60,60),
-        "brightgreen": (19,255,144),
-        "brightblue": (19,95,255),
-        "aquamarine": (19,164,255),
-        "lessbrightgreen": (19,255,134),
-        "brightgreen2": (19,255,134),
-        "brighterblue": (19,134,255)
-    }
-    if scr:
-        colors.pop("orange")
-    c2 = colors["gray"]
-    inputtext=""
-    tcol = "gray"
-    if passedargs != None:
-        args = passedargs.split(" ")
-        if args[0].lower() in colors:
-            tcol = args[0].lower()
-            c2 = colors[args[0].lower()]
-            inputtext = " ".join(map(str,args[1:]))
-        elif re.match("^(#)?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$", args[0]):
-            if not scr:
-                thingo = args[0].lstrip('#')
-                lv = len(thingo)
-                c2 = tuple(int(thingo[i:i + lv // 3], 16) for i in range(0, lv, lv // 3))
-                args.pop(0)
-                inputtext = " ".join(map(str,args))
-            else:
-                c2 = colors["gray"]
-                inputtext=passedargs
-        else:
-            c2 = colors["gray"]
-            inputtext=passedargs
-    c1 = (math.floor(c2[0]/6),math.floor(c2[1]/6),math.floor(c2[2]/6))
-    font = ImageFont.truetype("PetMe64.ttf", 8)
-    im = Image.new("RGBA", (1,1), color=c1)
-    draw = ImageDraw.Draw(im)
-    w,h = draw.multiline_textsize(inputtext, font=font,spacing=2)
-    im = im.resize((w+15,h+17))
-    draw = ImageDraw.Draw(im)
-    draw.multiline_text((7,8), inputtext,c2,font=font,spacing=2)
-    draw.rectangle([(1,1),(w+13,h+15)], fill=None, outline=c2)
-    draw.rectangle([(2,2),(w+12,h+14)], fill=None, outline=c2)
-    draw.rectangle([(4,4),(w+10,h+12)], fill=None, outline=c2)
-    temp = BytesIO()
-    im.save(temp, format="png")
-    temp.flush()
-    temp.seek(0)
-    dfile = discord.File(temp, filename='output.png')
-    if not scr:
-        return dfile
-    else:
-        lines = len(inputtext.split("\n"))
-        colorconv = {
-            "gray":"gray",
-            "grey":"gray",
-            "cyan":"cyan",
-            "viridian":"cyan",
-            "red":"red",
-            "vermilion":"red",
-            "green":"green",
-            "verdigris":"green",
-            "yellow":"yellow",
-            "vitellary":"yellow",
-            "blue":"blue",
-            "victoria":"blue",
-            "pink":"purple",
-            "purple":"purple",
-            "violet":"purple",
-            "darkaquamarine": "gray",
-            "darkgreen": "red",
-            "brightgreen": "green",
-            "brightblue": "blue",
-            "aquamarine": "cyan",
-            "lessbrightgreen": "yellow",
-            "brightgreen2": "yellow",
-            "brighterblue": "purple"
-        }
-        if tcol in ["darkaquamarine","darkgreen","brightgreen","brightblue","aquamarine","lessbrightgreen","brightgreen2","brighterblue"]:
-            tcol = colorconv[tcol]
-            t = """squeak({})
-text({},0,0,{})
-{}
-createcrewman(-50,0,blue,0,faceleft)
-speak_active""".format(tcol,tcol,lines,inputtext.replace("```",""))
-        else:
-            tcol = colorconv[tcol]
-            t = """squeak({})
-text({},0,0,{})
-{}
-speak_active""".format(tcol,tcol,lines,inputtext.replace("```",""))
-        return (dfile,t)
-
-@command()
-async def vtext(client, message, **kwargs):
-    dfile = await dovtext(kwargs["arguments"],False)
-    await message.channel.send(file=dfile)
-
-@command()
-async def vtscr(client, message, **kwargs):
-    dfile,t = await dovtext(kwargs["arguments"],True)
-    await message.channel.send(f"```{t}```",file=dfile)
-
-@command(auth=is_botowner)
-async def clean(bot, message, **kwargs):
-    async for m in message.channel.history(before=message, limit=25):
-        if m.author.id==bot.user.id:
-            await m.delete()
-
-
-@command(auth=is_botowner)
-async def _traceback(client, message, **kwargs):
-    if errorarray != []:
-        await send(message, "Most recent traceback:\n"+ errorarray[-1])
-    else:
-        await send(message, "No recent errors.")
-
-@command(auth=is_botowner)
-async def _eval(bot, message, **kwargs):
-    """Evaluates code."""
-    code = kwargs["arguments"]
-    if not code == None:
-        code = code.strip('` ')
-    else:
-        await send(message, "Successfully evaluated nothing.")
-        return
-    python = '```py\n{}\n```'
-    result = None
-    env = {
-        'message': message,
-        'guild': message.guild,
-        'channel': message.channel,
-        'author': message.author,
-        'match_input': match_input
-        }
-
-    env.update(globals())
-
-    try:
-        result = eval(code, env)
-        if inspect.isawaitable(result):
-            result = await result
-        try:
-            await message.add_reaction('\u2705')
-        except:
-            pass
-    except Exception as e:
-        await send(message, python.format(type(e).__name__ + ': ' + str(e)))
-        return
-
-    await send(message, python.format(result).replace(config["token"],"[TOKEN]")) # TODO: This is ugly and unsafe
-
 def cleanup_code(content):
     """Automatically removes code blocks from the code."""
     # remove ```py\n```
@@ -578,16 +331,6 @@ def get_syntax_error(e):
     if e.text is None:
         return '```py\n{0.__class__.__name__}: {0}\n```'.format(e)
     return '```py\n{0.text}{1:>{0.offset}}\n{2}: {0}```'.format(e, '^', type(e).__name__)
-
-@command(auth=is_botowner)
-async def kill(bot, message, **kwargs):
-    await send(message, ":wave:")
-    await bot.logout()
-
-@command(auth=is_botowner)
-async def restart(bot, message, **kwargs):
-    await bot.close()
-    os.execv(sys.executable, ['python3', "-u", "/home/ally/Melody/bot.py"] + sys.argv[:1])
 
 print("Connecting to Discord...")
 bot.run(config["token"])
