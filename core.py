@@ -16,7 +16,7 @@ async def _traceback(client, message, **kwargs):
 @command(auth=is_botowner)
 async def _eval(bot, message, **kwargs):
     """Evaluates code."""
-    code = kwargs["arguments"]
+    code = kwargs["string_arguments"]
     if not code == None:
         code = code.strip('` ')
     else:

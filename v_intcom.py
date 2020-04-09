@@ -3,13 +3,14 @@ import urllib
 import json
 import discord
 
-@command(aliases=['internal','intdef','intdefine','internaldefine','internaldef', 'int.scr', 'int.sc', 'intscr', 'intsc'])
-async def _int(bot, message, **kwargs):
-    if kwargs['arguments'] == None:
+async def handle_int(message,keyword,vce):
+    if keyword == None:
         await send(message, "Please enter a command name.")
         return
-    keyword = kwargs['arguments']
-    data = await fetch("https://tolp.nl/v_intcom/api/v1/json/?command=" + urllib.parse.quote(keyword))
+    url = "https://tolp.nl/v_intcom/api/v1/json/?command=" + urllib.parse.quote(keyword)
+    if vce:
+        url += "&vce=1"
+    data = await fetch(url)
     jsonl = json.loads(data)
     try:
         try:
@@ -27,12 +28,18 @@ async def _int(bot, message, **kwargs):
             em = discord.Embed(title='VVVVVV',colour=discord.Color.orange())
         elif jsonl["color"] == "r":
             em = discord.Embed(title='VVVVVV',colour=discord.Color.red())
+        elif jsonl["color"] == "P":
+            em = discord.Embed(title='VVVVVV',colour=discord.Color.magenta())
+            em.set_footer(text="This command was added by VVVVVV: Community Edition")
         else:
             em = discord.Embed(title='VVVVVV',colour=discord.Color.lighter_grey())
         tempstring = "{}({})"
         if not jsonl["brackets"]:
             tempstring = "{}"
-        em.add_field(name="Description:", value=jsonl["description"])
+        if vce and (jsonl["description_vce"] != ""):
+            em.add_field(name="Description:", value=jsonl["description"] + "\n" + "**Changed in VVVVVV: Community Edition:** " + jsonl["description_vce"])
+        else:
+            em.add_field(name="Description:", value=jsonl["description"])
         em.add_field(name="Usage:", value=tempstring.format(jsonl["name"],str(','.join(map(str, [x["name"] for x in jsonl["args"]])))))
         if jsonl["args"] != []:
             temparray = []
@@ -49,6 +56,8 @@ async def _int(bot, message, **kwargs):
                     type = "Unknown"
                 temparray.append("{} - {} ({})".format(i["name"], i["description"], type))
             em.add_field(name="Arguments:", value=str('\n'.join(map(str, temparray))))
+        if jsonl["changed_in_vce"] and jsonl["color"] != "P":
+            em.set_footer(text="This command was modified by VVVVVV: Community Edition")
         extra = None
         if jsonl["name"] == "gamestate":
             extra = "[Gamestate list](https://glaceon.ca/V/lists/#glist)"
@@ -61,3 +70,11 @@ async def _int(bot, message, **kwargs):
         await send(message, "No results.")
     except discord.errors.HTTPException:
         await send(message, "Response too large!")
+
+@command()
+async def _int(bot, message, **kwargs):
+    await handle_int(message, kwargs["string_arguments"], False)
+
+@command()
+async def vceint(bot, message, **kwargs):
+    await handle_int(message, kwargs["string_arguments"], True)

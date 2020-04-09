@@ -26,7 +26,7 @@ config = {}
 
 def read_config():
     global config
-    with open("config.json") as file:
+    with open("config.json", encoding='utf-8') as file:
         file_contents = file.read()
         config = json.loads(file_contents)
     required_values = ["token","owners"]
@@ -271,30 +271,25 @@ async def on_error(event, *args, **kwargs):
 async def on_message(message):
     if message.author == bot.user or message.author.bot:
         return
-    global commanda
-    global clean_command
+    global unsplit_command
     for i in config["invokers"]:
         if message.content.startswith(i):
-            commanda = message.content.split(i, 1)[1]
-            try:
-                clean_command = message.clean_content.split(i, 1)[1]
-            except IndexError:
-                clean_command = commanda
+            unsplit_command = message.content.split(i, 1)[1]
             invoker = i
             break
     else:
-        return # this can be on message triggers if wanted
-    try:
-        arguments = commanda.split(' ', 1)[1]
-        clean_arguments = clean_command.split(' ', 1)[1]
-    except IndexError:
-        arguments = None
-        clean_arguments = None
-    command = commanda.split(' ', 1)[0]
+        return # This isn't a command!
+    split_command = list(filter(None, unsplit_command.split(" ")))
+    if split_command == []:
+        return # They didn't enter anything after the invoker, which is odd...
+    command = split_command[0]
+    arguments = split_command[1:]
+    string_arguments = unsplit_command.split(command, 1)[1].strip() # Some commands might want arguments in string form, to preserve spacing and such
+    
     if command in common.commands:
         func = common.commands[command]
     else:
-        # check if it's an alias
+        # Is this an alias?
         for c, p in common.commands.items():
             if p[2] != None and command in p[2]:
                 func = common.commands[c]
@@ -310,7 +305,7 @@ async def on_message(message):
         else:
             await send(message, "You don't have permission to use this command.\nTo find out who can use this, use the **help** command.")
         return # this person does not have permission. again, if you want, you can put code here to signal that the command caller has no permission to do this, instead of just a return
-    kwargs = {'arguments': arguments} # place variables to pass around here. an example would be: kwargs = {'command': command}
+    kwargs = {'arguments': arguments, 'string_arguments': string_arguments} # place variables to pass around here. an example would be: kwargs = {'command': command}
     # you don't have to do this, but it's better than globalling variables
     await func[0](bot, message, **kwargs)
 
