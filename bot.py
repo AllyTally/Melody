@@ -319,12 +319,6 @@ def manage_messages(message):
         return True
     return message.author.guild_permissions.manage_messages
 
-@command(auth=is_botowner)
-async def clean(bot, message, **kwargs):
-    async for m in message.channel.history(before=message, limit=25):
-        if m.author.id==bot.user.id:
-            await m.delete()
-
 def cleanup_code(content):
     """Automatically removes code blocks from the code."""
     # remove ```py\n```

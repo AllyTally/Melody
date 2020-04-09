@@ -58,3 +58,8 @@ async def restart(bot, message, **kwargs):
     await bot.close()
     os.execv(sys.executable, ['python3', "-u", "/home/ally/Melody/bot.py"] + sys.argv[:1])
 
+@command(auth=is_botowner)
+async def clean(bot, message, **kwargs):
+    async for m in message.channel.history(before=message, limit=25):
+        if m.author.id==bot.user.id:
+            await m.delete()
