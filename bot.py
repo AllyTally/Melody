@@ -17,6 +17,7 @@ import math
 from io import BytesIO
 import inspect
 import urllib.parse
+import re
 
 bot = discord.Client(status=discord.Status.dnd, activity=discord.Game(name="Starting..."))
 errorarray = []
