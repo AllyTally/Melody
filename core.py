@@ -55,8 +55,9 @@ async def kill(bot, message, **kwargs):
 
 @command(auth=is_botowner)
 async def restart(bot, message, **kwargs):
+    await send(message, "Restarting...")
     await bot.close()
-    os.execv(sys.executable, ['python3', "-u", "/home/ally/Melody/bot.py"] + sys.argv[:1])
+    os.execv(sys.executable, ['python3', "-u", "/home/ally/melody/bot.py"] + sys.argv[:1])
 
 @command(auth=is_botowner)
 async def clean(bot, message, **kwargs):
