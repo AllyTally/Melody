@@ -15,35 +15,13 @@ import aiohttp
 from PIL import Image, ImageFont, ImageDraw
 import math
 from io import BytesIO
-import inspect
 import urllib.parse
 import common
 from common import command, send, is_botowner
+import config
 
 bot = discord.Client(status=discord.Status.dnd, activity=discord.Game(name="Starting..."))
 errorarray = []
-config = {}
-
-def read_config():
-    global config
-    with open("config.json", encoding='utf-8') as file:
-        file_contents = file.read()
-        config = json.loads(file_contents)
-    required_values = ["token","owners"]
-    default_values = {"invokers": ["!"]}
-    failed = False
-    for item in required_values:
-        if not item in config:
-            print(item + " is missing from config.json.")
-            failed = True
-    if failed:
-        sys.exit()
-    for key, value in default_values.items():
-        if not key in config:
-            print(key + " is missing from config.json. The default value(s) will be used.")
-            config[key] = value
-            
-read_config()
 
 async def get_last_attachment(message):
     last_attachment = None
@@ -272,7 +250,7 @@ async def on_message(message):
     if message.author == bot.user or message.author.bot:
         return
     global unsplit_command
-    for i in config["invokers"]:
+    for i in config.config["invokers"]:
         if message.content.startswith(i):
             unsplit_command = message.content.split(i, 1)[1]
             invoker = i
@@ -327,5 +305,7 @@ def get_syntax_error(e):
         return '```py\n{0.__class__.__name__}: {0}\n```'.format(e)
     return '```py\n{0.text}{1:>{0.offset}}\n{2}: {0}```'.format(e, '^', type(e).__name__)
 
+config.read_config()
+
 print("Connecting to Discord...")
-bot.run(config["token"])
+bot.run(config.config["token"])

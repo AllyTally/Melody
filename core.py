@@ -1,6 +1,8 @@
-from common import command, is_botowner, send
+from common import command, send, is_botowner
 import os
 import sys
+import config
+import inspect
 
 @command()
 async def hello(bot, message, **kwargs):
@@ -28,8 +30,7 @@ async def _eval(bot, message, **kwargs):
         'message': message,
         'guild': message.guild,
         'channel': message.channel,
-        'author': message.author,
-        'match_input': match_input
+        'author': message.author
         }
 
     env.update(globals())
@@ -46,7 +47,7 @@ async def _eval(bot, message, **kwargs):
         await send(message, python.format(type(e).__name__ + ': ' + str(e)))
         return
 
-    await send(message, python.format(result).replace(config["token"],"[TOKEN]")) # TODO: This is ugly and unsafe
+    await send(message, python.format(result).replace(config.config["token"],"[TOKEN]")) # TODO: This is ugly and unsafe
 
 @command(auth=is_botowner)
 async def kill(bot, message, **kwargs):
