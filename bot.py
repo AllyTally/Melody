@@ -216,6 +216,7 @@ async def random_game():
 
 import vtext
 import v_intcom
+import general
 import core
 
 @bot.event
