@@ -2,7 +2,9 @@ from common import command, send, is_botowner
 import os
 import sys
 import config
+import persistent
 import inspect
+import time
 
 @command()
 async def hello(bot, message, **kwargs):
@@ -51,12 +53,24 @@ async def _eval(bot, message, **kwargs):
 
 @command(auth=is_botowner)
 async def kill(bot, message, **kwargs):
-    await send(message, ":wave:")
+    try:
+        await send(message, ":wave:")
+        persistent.persistent["restart_message"] = None
+        persistent.persistent["restart_timestamp"] = None
+        persistent.save()
+    except:
+        pass
     await bot.logout()
 
 @command(auth=is_botowner)
 async def restart(bot, message, **kwargs):
-    await send(message, "Restarting...")
+    try:
+        msg = await send(message, "Restarting...")
+        persistent.persistent["restart_message"] = [msg.channel.id,msg.id]
+        persistent.persistent["restart_timestamp"] = time.time()
+        persistent.save()
+    except:
+        pass
     await bot.close()
     os.execv(sys.executable, ['python3', "-u", "/home/ally/melody/bot.py"] + sys.argv[:1])
 

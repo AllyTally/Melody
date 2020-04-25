@@ -19,6 +19,10 @@ import urllib.parse
 import common
 from common import command, send, is_botowner
 import config
+import persistent
+import time
+
+persistent.read_persistent()
 
 bot = discord.Client(status=discord.Status.dnd, activity=discord.Game(name="Starting..."))
 errorarray = []
@@ -227,6 +231,16 @@ async def on_ready():
     print('------')
     print("Server count: {}".format(len(bot.guilds)))
     bot.loop.create_task(random_game())
+    try:
+        if persistent.persistent["restart_message"]:
+            channel = await bot.fetch_channel(persistent.persistent["restart_message"][0])
+            msg = await channel.fetch_message(persistent.persistent["restart_message"][1])
+            seconds = time.time() - persistent.persistent["restart_timestamp"]
+            await msg.edit(content=f"Bot restarted in {seconds} seconds.")
+    except:
+        print("Couldn't send restarted message!")
+        pass
+    persistent.persistent["restart_message"] = None
 
 @bot.event
 async def on_error(event, *args, **kwargs):
