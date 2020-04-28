@@ -16,7 +16,7 @@ async def handle_int(message,keyword,vce):
         try:
             thing = jsonl["error"]
         except KeyError:
-            thing = None		
+            thing = None
         if thing:
             await send(message, jsonl["error"]["message"])
             return

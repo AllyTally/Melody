@@ -21,6 +21,7 @@ from common import command, send, is_botowner
 import config
 import persistent
 import time
+import natural.date
 
 persistent.read_persistent()
 
@@ -218,6 +219,23 @@ async def random_game():
         await bot.change_presence(activity=game)
         await asyncio.sleep(300)
 
+async def check_reminders():
+    while True:
+        toremove = []
+        for id,reminder in persistent.persistent["reminders"].items():
+            if time.time() > reminder["timestamp"]:
+                try:
+                    channel = await bot.fetch_channel(reminder["channel_id"])
+                    readable_time = natural.date.duration(reminder["called_timestamp"],precision=3)
+                    await channel.send(content=f"<@{reminder['user_id']}>, {readable_time}: {reminder['text']}\n\nhttps://discordapp.com/channels/{str(reminder['guild_id'])}/{str(reminder['channel_id'])}/{str(reminder['message_id'])}")
+                    toremove.append(id)
+                except:
+                    print("Couldn't send reminder!")
+                    pass
+        for id in toremove:
+            persistent.persistent["reminders"].pop(id)
+        await asyncio.sleep(1)
+
 import vtext
 import v_intcom
 import general
@@ -231,6 +249,7 @@ async def on_ready():
     print('------')
     print("Server count: {}".format(len(bot.guilds)))
     bot.loop.create_task(random_game())
+    bot.loop.create_task(check_reminders())
     try:
         if persistent.persistent["restart_message"]:
             channel = await bot.fetch_channel(persistent.persistent["restart_message"][0])
