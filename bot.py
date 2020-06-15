@@ -23,9 +23,12 @@ import persistent
 import time
 import natural.date
 
+from client import bot
+
+
 persistent.read_persistent()
 
-bot = discord.Client(status=discord.Status.dnd, activity=discord.Game(name="Starting..."))
+#bot = discord.Client(status=discord.Status.dnd, activity=discord.Game(name="Starting..."))
 errorarray = []
 
 async def get_last_attachment(message):
@@ -223,15 +226,16 @@ async def check_reminders():
     while True:
         toremove = []
         for id,reminder in persistent.persistent["reminders"].items():
-            if time.time() > reminder["timestamp"]:
-                try:
-                    channel = await bot.fetch_channel(reminder["channel_id"])
-                    readable_time = natural.date.duration(reminder["called_timestamp"],precision=3)
-                    await channel.send(content=f"<@{reminder['user_id']}>, {readable_time}: {reminder['text']}\n\nhttps://discordapp.com/channels/{str(reminder['guild_id'])}/{str(reminder['channel_id'])}/{str(reminder['message_id'])}")
-                    toremove.append(id)
-                except:
-                    print("Couldn't send reminder!")
-                    pass
+            if not id in toremove:
+                if time.time() > reminder["timestamp"]:
+                    try:
+                        channel = await bot.fetch_channel(reminder["channel_id"])
+                        readable_time = natural.date.duration(reminder["called_timestamp"],precision=3)
+                        await channel.send(content=f"<@{reminder['user_id']}>, {readable_time}: {reminder['text']}\n\nhttps://discordapp.com/channels/{str(reminder['guild_id'])}/{str(reminder['channel_id'])}/{str(reminder['message_id'])}")
+                        toremove.append(id)
+                    except:
+                        print("Couldn't send reminder!")
+                        pass
         for id in toremove:
             persistent.persistent["reminders"].pop(id)
         await asyncio.sleep(1)
