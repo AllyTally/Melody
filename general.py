@@ -22,13 +22,9 @@ async def remind(bot, message, **kwargs):
         await reply(message, "Please enter a valid time. Examples: `tomorrow`, `10h`, `3 days`")
         return
     dates = find_time.find_time(args)
-    if dates == None:
+    if not dates:
         await reply(message, "Please enter a valid time. Examples: `tomorrow`, `10h`, `3 days`")
         return
-    remindertext = args
-    for i in dates[1]:
-        remindertext = remindertext.replace(i,"",1)
-    remindertext = remindertext.strip()
     seconds = dates[0]
     if seconds < 1 or seconds >= 31536000:
         await reply(message, "Please enter a valid time. Examples: `tomorrow`, `10h`, `3 days`")
@@ -37,21 +33,21 @@ async def remind(bot, message, **kwargs):
     reminder = {
         "timestamp": round(time.time()) + seconds,
         "called_timestamp": round(time.time()),
-        "text": remindertext,
+        "text": dates[1],
         "user_id": message.author.id,
         "channel_id": message.channel.id,
         "message_id": message.id,
         "guild_id": "@me"
     }
-    if remindertext == "":
+    if dates[1] == "":
         reminder["text"] = "(No reminder text.)"
     if message.guild:
         reminder["guild_id"] = message.guild.id
     persistent.persistent["reminders"][message.id] = reminder
-    if remindertext == "":
+    if dates[1] == "":
         await reply(message, f"{message.author.mention}, I'll mention you in {readable_time}.")
     else:
-        await reply(message, f"{message.author.mention}, in {readable_time}: {remindertext}")
+        await reply(message, f"{message.author.mention}, in {readable_time}: {dates[1]}")
 
 @command()
 async def reminders(bot, message, **kwargs):
