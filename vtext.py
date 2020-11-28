@@ -120,9 +120,9 @@ speak_active""".format(tcol,tcol,lines,inputtext.replace("```",""))
 @command()
 async def vtext(client, message, **kwargs):
     dfile = await dovtext(kwargs["string_arguments"],False)
-    await message.channel.send(file=dfile)
+    await message.reply(file=dfile)
 
 @command()
 async def vtscr(client, message, **kwargs):
     dfile,t = await dovtext(kwargs["string_arguments"],True)
-    await message.channel.send(f"```{t}```",file=dfile)
+    await message.reply(f"```{t}```",file=dfile)

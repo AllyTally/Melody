@@ -1,11 +1,11 @@
-from common import command, fetch, send
+from common import command, fetch, send, reply
 import urllib
 import json
 import discord
 
 async def handle_int(message,keyword,vce):
     if keyword == None:
-        await send(message, "Please enter a command name.")
+        await reply(message, "Please enter a command name.")
         return
     url = "https://tolp.nl/v_intcom/api/v1/json/?command=" + urllib.parse.quote(keyword)
     if vce:
@@ -18,7 +18,7 @@ async def handle_int(message,keyword,vce):
         except KeyError:
             thing = None
         if thing:
-            await send(message, jsonl["error"]["message"])
+            await reply(message, jsonl["error"]["message"])
             return
         if jsonl["color"] == "t" or jsonl["color"] == "w":
             em = discord.Embed(title='VVVVVV',colour=discord.Color.lighter_grey())
@@ -65,11 +65,11 @@ async def handle_int(message,keyword,vce):
             extra = "[Entity list](https://glaceon.ca/V/lists/#celist)"
         if extra:
             em.add_field(name="Extra information:", value=extra)
-        await send(message, embed=em)
+        await reply(message, embed=em)
     except IndexError:
-        await send(message, "No results.")
+        await reply(message, "No results.")
     except discord.errors.HTTPException:
-        await send(message, "Response too large!")
+        await reply(message, "Response too large!")
 
 @command()
 async def _int(bot, message, **kwargs):

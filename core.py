@@ -1,4 +1,4 @@
-from common import command, send, is_botowner
+from common import command, send, reply, is_botowner
 import os
 import sys
 import config
@@ -8,14 +8,14 @@ import time
 
 @command()
 async def hello(bot, message, **kwargs):
-    await send(message, ":wave:")
+    await reply(message, ":wave:")
 
 @command(auth=is_botowner)
 async def _traceback(client, message, **kwargs):
     if errorarray != []:
-        await send(message, "Most recent traceback:\n"+ errorarray[-1])
+        await reply(message, "Most recent traceback:\n"+ errorarray[-1])
     else:
-        await send(message, "No recent errors.")
+        await reply(message, "No recent errors.")
 
 @command(auth=is_botowner)
 async def _eval(bot, message, **kwargs):
@@ -24,7 +24,7 @@ async def _eval(bot, message, **kwargs):
     if not code == None:
         code = code.strip('` ')
     else:
-        await send(message, "Successfully evaluated nothing.")
+        await reply(message, "Successfully evaluated nothing.")
         return
     python = '```py\n{}\n```'
     result = None
@@ -46,15 +46,15 @@ async def _eval(bot, message, **kwargs):
         except:
             pass
     except Exception as e:
-        await send(message, python.format(type(e).__name__ + ': ' + str(e)))
+        await reply(message, python.format(type(e).__name__ + ': ' + str(e)))
         return
 
-    await send(message, python.format(result).replace(config.config["token"],"[TOKEN]")) # TODO: This is ugly and unsafe
+    await reply(message, python.format(result).replace(config.config["token"],"[TOKEN]")) # TODO: This is ugly and unsafe
 
 @command(auth=is_botowner)
 async def kill(bot, message, **kwargs):
     try:
-        await send(message, ":wave:")
+        await reply(message, ":wave:")
         persistent.persistent["restart_message"] = None
         persistent.persistent["restart_timestamp"] = None
         persistent.save()
@@ -65,7 +65,7 @@ async def kill(bot, message, **kwargs):
 @command(auth=is_botowner)
 async def restart(bot, message, **kwargs):
     try:
-        msg = await send(message, "Restarting...")
+        msg = await reply(message, "Restarting...")
         persistent.persistent["restart_message"] = [msg.channel.id,msg.id]
         persistent.persistent["restart_timestamp"] = time.time()
         persistent.save()

@@ -25,7 +25,7 @@ async def safe_remove_reaction(message, emoji, member):
        pass
 
 async def listmenu(message, embed_list, settings = default_settings):
-    msg = await message.channel.send(settings.get("message_content", None), embed=embed_list[settings.get("first_embed", 0)])
+    msg = await message.reply(settings.get("message_content", None), embed=embed_list[settings.get("first_embed", 0)])
     current_embed = settings["first_embed"]
     for i in list(settings["reaction_settings"]["reactions"].keys()):
         await msg.add_reaction(i)

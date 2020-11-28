@@ -17,7 +17,7 @@ import math
 from io import BytesIO
 import urllib.parse
 import common
-from common import command, send, is_botowner
+from common import command, send, reply, is_botowner
 import config
 import persistent
 import time
@@ -275,7 +275,7 @@ async def on_error(event, *args, **kwargs):
         return
     print(traceback.format_exc())
     if type(args[0]) is discord.Message:
-        await args[0].channel.send("An unexpected error occured! Oops. Please don't try to cause it a second time!")
+        await args[0].reply("An unexpected error occured! Oops. Please don't try to cause it a second time!")
         await foundowner.send(f"Traceback: ```py\n{traceback.format_exc()}```\nServer: {args[0].guild}\nChannel: {args[0].channel}\nMessage ID: {args[0].id}\nMessage content: {args[0].content}")
     errorarray.append("```py\n" + traceback.format_exc() + "```")
 
@@ -315,11 +315,11 @@ async def on_message(message):
     print("{} (#{}): {}: {}".format(message.guild, message.channel, message.author.name.encode("ascii","backslashreplace").decode(), message.content.encode("ascii","backslashreplace").decode()))
     if func[1] != None and not func[1](message): # auth check
         if func[1].__name__ == "is_botowner":
-            await send(message, "You need to be the bot owner to use this command!")
+            await reply(message, "You need to be the bot owner to use this command!")
         elif func[1].__name__ == "manage_messages":
-            await send(message, "You need the **manage messages** permission to use this command!")
+            await reply(message, "You need the **manage messages** permission to use this command!")
         else:
-            await send(message, "You don't have permission to use this command.\nTo find out who can use this, use the **help** command.")
+            await reply(message, "You don't have permission to use this command.\nTo find out who can use this, use the **help** command.")
         return # this person does not have permission. again, if you want, you can put code here to signal that the command caller has no permission to do this, instead of just a return
     kwargs = {'arguments': arguments, 'string_arguments': string_arguments} # place variables to pass around here. an example would be: kwargs = {'command': command}
     # you don't have to do this, but it's better than globalling variables

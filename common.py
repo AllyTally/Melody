@@ -15,6 +15,10 @@ def is_botowner(message):
 async def send(message, text=None, embed=None):
     return await message.channel.send(text, embed=embed)
 
+async def reply(message, text=None, embed=None, mention=False):
+    return await message.reply(text, embed=embed)
+
+
 async def fetch(url, agent='Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'):
     async with ClientSession(headers={'User-Agent': agent}) as session:
         async with session.get(url) as response:
