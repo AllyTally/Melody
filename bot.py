@@ -245,6 +245,8 @@ import v_intcom
 import general
 import core
 
+first_ready = True
+
 @bot.event
 async def on_ready():
     print('Logged in as')
@@ -252,18 +254,21 @@ async def on_ready():
     print(bot.user.id)
     print('------')
     print("Server count: {}".format(len(bot.guilds)))
-    bot.loop.create_task(random_game())
-    bot.loop.create_task(check_reminders())
-    try:
-        if persistent.persistent["restart_message"]:
-            channel = await bot.fetch_channel(persistent.persistent["restart_message"][0])
-            msg = await channel.fetch_message(persistent.persistent["restart_message"][1])
-            seconds = time.time() - persistent.persistent["restart_timestamp"]
-            await msg.edit(content=f"Bot restarted in {seconds} seconds.")
-    except:
-        print("Couldn't send restarted message!")
-        pass
-    persistent.persistent["restart_message"] = None
+    if first_ready:
+        global first_ready
+        first_ready = False
+        bot.loop.create_task(random_game())
+        bot.loop.create_task(check_reminders())
+        try:
+            if persistent.persistent["restart_message"]:
+                channel = await bot.fetch_channel(persistent.persistent["restart_message"][0])
+                msg = await channel.fetch_message(persistent.persistent["restart_message"][1])
+                seconds = time.time() - persistent.persistent["restart_timestamp"]
+                await msg.edit(content=f"Bot restarted in {seconds} seconds.")
+        except:
+            print("Couldn't send restarted message!")
+            pass
+        persistent.persistent["restart_message"] = None
 
 @bot.event
 async def on_error(event, *args, **kwargs):
