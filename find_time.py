@@ -37,7 +37,7 @@ def find_time(input_string):
     
     starting_string = "" # in case the word "in" is in the middle of the message, we should keep what comes before it
     
-    in_match = re.search("(in)(?:\s+)", input_string) # does it contain "in"?
+    in_match = re.search("(?:^|\W)(in)(?:\s+)", input_string) # does it contain "in"?
     if in_match: # we found the word "in" with a space after it!
         start = in_match.end(0) # okay, the time starts after the word in, probably
         
@@ -97,3 +97,4 @@ def find_time(input_string):
 #print(find_time("1 minute minute thingy"))
 #print(find_time("1 FUCkin hour"))
 #print(find_time("2.5 hours"))
+#print(find_time("2 months https://twitter.com/NeveGlaciers/status/1334597817822826497?s=20 is this true? is she on your kin list now?"))
