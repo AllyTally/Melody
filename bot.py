@@ -24,6 +24,7 @@ import time
 import natural.date
 
 from client import bot
+import tasks
 
 
 persistent.read_persistent()
@@ -204,41 +205,7 @@ def cleantext(message):
     message = message.replace("@here","[@\u200bhere]")
     return message
 
-async def random_game():
-    ''' Changes the game in the bot's status. '''
-    while True:
-        gamelist = [
-            "[playing] with hearts </3",
-            "[playing] on {} servers!".format(len(bot.guilds)),
-            "[streaming] on Twitch",
-            "[listening] voices...",
-            "[watching] you.",
-        ]
-        picked = random.choice(gamelist)
-        name = picked.split("] ")[1]
-        type = picked.split("] ")[0].replace("[", "", 1)
-        games = {"playing":discord.ActivityType.playing,"streaming":discord.ActivityType.streaming,"listening":discord.ActivityType.listening,"watching":discord.ActivityType.watching}
-        game = discord.Activity(name=name + " | Melody", url="https://www.twitch.tv/logout.html", type=games[type])
-        await bot.change_presence(activity=game)
-        await asyncio.sleep(300)
 
-async def check_reminders():
-    while True:
-        toremove = []
-        for id,reminder in persistent.persistent["reminders"].items():
-            if not id in toremove:
-                if time.time() > reminder["timestamp"]:
-                    try:
-                        channel = await bot.fetch_channel(reminder["channel_id"])
-                        readable_time = natural.date.duration(reminder["called_timestamp"],precision=3)
-                        await channel.send(content=f"<@{reminder['user_id']}>, {readable_time}: {reminder['text']}\n\nhttps://discordapp.com/channels/{str(reminder['guild_id'])}/{str(reminder['channel_id'])}/{str(reminder['message_id'])}")
-                        toremove.append(id)
-                    except:
-                        print("Couldn't send reminder!")
-                        pass
-        for id in toremove:
-            persistent.persistent["reminders"].pop(id)
-        await asyncio.sleep(1)
 
 import vtext
 import v_intcom
@@ -257,8 +224,11 @@ async def on_ready():
     global first_ready
     if first_ready:
         first_ready = False
-        bot.loop.create_task(random_game())
-        bot.loop.create_task(check_reminders())
+        bot.loop.create_task(tasks.random_game())
+
+        for reminder_id in persistent.persistent["reminders"]:
+            bot.loop.create_task(tasks.check_reminder(reminder_id))
+
         try:
             if persistent.persistent["restart_message"]:
                 channel = await bot.fetch_channel(persistent.persistent["restart_message"][0])

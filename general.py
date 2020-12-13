@@ -5,6 +5,7 @@ import find_time
 from humanfriendly import format_timespan
 import time
 import persistent
+import tasks
 
 @command()
 async def calc(bot, message, **kwargs):
@@ -44,6 +45,9 @@ async def remind(bot, message, **kwargs):
     if message.guild:
         reminder["guild_id"] = message.guild.id
     persistent.persistent["reminders"][message.id] = reminder
+
+    bot.loop.create_task(tasks.check_reminder(message.id))
+
     if dates[1] == "":
         await reply(message, f"{message.author.mention}, I'll mention you in {readable_time}.")
     else:
