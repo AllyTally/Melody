@@ -1,6 +1,6 @@
 import discord
 import asyncio
-from common import send
+from common import cleantext, send
 import persistent
 import time
 import natural.date
@@ -34,7 +34,7 @@ async def check_reminder(reminder_id):
         readable_time = natural.date.duration(current_reminder["called_timestamp"],precision=3) # Get the time in a readable format
         
         # And finally, send the reminder.
-        await channel.send(content=f"<@{current_reminder['user_id']}>, {readable_time}: {current_reminder['text']}\n\nhttps://discordapp.com/channels/{str(current_reminder['guild_id'])}/{str(current_reminder['channel_id'])}/{str(current_reminder['message_id'])}")
+        await channel.send(content=f"<@{current_reminder['user_id']}>, {readable_time}: {cleantext(current_reminder['text'])}\n\nhttps://discordapp.com/channels/{str(current_reminder['guild_id'])}/{str(current_reminder['channel_id'])}/{str(current_reminder['message_id'])}")
 
     except:
         print("Couldn't send reminder!")                                       # We couldn't send the reminder, so return early
