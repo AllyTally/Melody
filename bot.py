@@ -254,8 +254,8 @@ async def on_ready():
     print(bot.user.id)
     print('------')
     print("Server count: {}".format(len(bot.guilds)))
+    global first_ready
     if first_ready:
-        global first_ready
         first_ready = False
         bot.loop.create_task(random_game())
         bot.loop.create_task(check_reminders())
