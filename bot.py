@@ -8,6 +8,7 @@ from common import reply
 import config
 import persistent
 import tasks
+import reminders
 
 # pylint: disable=unused-import
 import vtext
@@ -201,10 +202,9 @@ async def on_ready():
     if first_ready:
         first_ready = False
 #pylint: enable=invalid-name, global-statement
-        bot.loop.create_task(tasks.random_game())
 
-        for reminder_id in persistent.persistent["reminders"]:
-            bot.loop.create_task(tasks.check_reminder(reminder_id))
+        bot.loop.create_task(tasks.random_game())
+        reminders.create_all_reminders()
 
         try:
             if persistent.persistent["restart_message"]:
