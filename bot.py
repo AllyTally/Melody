@@ -204,9 +204,13 @@ async def on_ready():
         first_ready = False
 #pylint: enable=invalid-name, global-statement
 
+        print("Starting random game task...")
         bot.loop.create_task(tasks.random_game())
+        print("Starting reminder tasks...")
         reminders.create_all_reminders()
+        print("Starting webserver task...")
         bot.loop.create_task(webserver.start_server())
+        print("All tasks started successfully.")
 
         try:
             if persistent.persistent["restart_message"]:
