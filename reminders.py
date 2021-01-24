@@ -10,8 +10,11 @@ import find_time
 current_reminders = {}
 
 def create_all_reminders():
+    print("Creating reminder tasks.")
     for reminder_id in persistent.persistent["reminders"]:
+        print("Creating " + str(reminder_id))
         current_reminders[reminder_id] = bot.loop.create_task(tasks.check_reminder(reminder_id))
+        print("Created " + str(reminder_id) + " successfully")
 
 @command()
 async def remind(bot, message, **kwargs):
