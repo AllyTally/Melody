@@ -26,5 +26,5 @@ async def start_server():
     print("Starting web server...")
     runner = web.AppRunner(app)
     await runner.setup()
-    site = web.TCPSite(runner, 'localhost', 2064)
+    site = web.TCPSite(runner, '0.0.0.0', 2064)
     await site.start()
