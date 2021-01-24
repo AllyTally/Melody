@@ -9,6 +9,7 @@ import config
 import persistent
 import tasks
 import reminders
+import webserver
 
 # pylint: disable=unused-import
 import vtext
@@ -205,6 +206,7 @@ async def on_ready():
 
         bot.loop.create_task(tasks.random_game())
         reminders.create_all_reminders()
+        bot.loop.create_task(webserver.start_server())
 
         try:
             if persistent.persistent["restart_message"]:

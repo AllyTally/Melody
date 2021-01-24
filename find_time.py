@@ -29,7 +29,7 @@ def time_to_seconds(number,unit):
     #    return number * 31536000
     return 0
 
-def find_time(input_string):
+def find_time(input_string,ignore_in=False):
     # First, we want to try and match time like 12h 2m 13s.
     # TODO: support written out numbers like twelve hours, two minutes and thirteen seconds.
     
@@ -37,12 +37,14 @@ def find_time(input_string):
     
     starting_string = "" # in case the word "in" is in the middle of the message, we should keep what comes before it
     
-    in_match = re.search("(?:^|\W)(in)(?:\s+)", input_string) # does it contain "in"?
-    if in_match: # we found the word "in" with a space after it!
-        start = in_match.end(0) # okay, the time starts after the word in, probably
-        
-        temp_start = in_match.start(0) # for below
-        starting_string = input_string[0:temp_start] # keep what comes before "in"! note, this includes the space which we don't need to strip
+    if (not ignore_in):
+    
+        in_match = re.search("(?:^|\W)(in)(?:\s+)", input_string) # does it contain "in"?
+        if in_match: # we found the word "in" with a space after it!
+            start = in_match.end(0) # okay, the time starts after the word in, probably
+
+            temp_start = in_match.start(0) # for below
+            starting_string = input_string[0:temp_start] # keep what comes before "in"! note, this includes the space which we don't need to strip
         
     valid = True
     built_time = []
@@ -66,11 +68,17 @@ def find_time(input_string):
     total_seconds = 0
     index = 0
     if len(built_time) == 0:
+        if (not ignore_in):
+            return find_time(input_string,ignore_in=True)
         return False
     while (True):
         if not built_time[index].isnumeric():
+            if (not ignore_in):
+                return find_time(input_string,ignore_in=True)
             return False
         if index + 1 >= len(built_time):
+            if (not ignore_in):
+                return find_time(input_string,ignore_in=True)
             return False
 
         total_seconds += time_to_seconds(int(built_time[index]), built_time[index+1])
@@ -78,6 +86,8 @@ def find_time(input_string):
         index += 2
         if index >= len(built_time):
             return [total_seconds,(starting_string + substring).strip()]
+    if (not ignore_in):
+        return find_time(input_string,ignore_in=True)
     return None
 
 #print(find_time("2 seconds, do something"))
@@ -98,3 +108,4 @@ def find_time(input_string):
 #print(find_time("1 FUCkin hour"))
 #print(find_time("2.5 hours"))
 #print(find_time("2 months https://twitter.com/NeveGlaciers/status/1334597817822826497?s=20 is this true? is she on your kin list now?"))
+#print(find_time("5h stream bloons or something your twitch channel is literally rotting in the dirt"))
