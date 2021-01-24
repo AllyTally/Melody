@@ -1,5 +1,6 @@
 import discord
 from common import command, reply
+from client import bot
 import find_time
 from humanfriendly import format_timespan
 import time
