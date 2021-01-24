@@ -29,7 +29,7 @@ async def check_reminder(reminder_id):
     print("check_reminder: Start")
     current_reminder = persistent.persistent["reminders"][reminder_id]         # Store the current reminder
     print("check_reminder: Stored current reminder")
-    print("check_reminder: Sleeping for " + current_reminder["timestamp"] - time.time())
+    print("check_reminder: Sleeping for " + str(current_reminder["timestamp"] - time.time()))
     await asyncio.sleep(current_reminder["timestamp"] - time.time())           # Sleep until it's time to remind the user
     print("check_reminder: Sleep finished")
 
