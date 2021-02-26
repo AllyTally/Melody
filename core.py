@@ -11,7 +11,7 @@ import utils
 async def hello(bot, message, **kwargs):
     await reply(message, ":wave:")
 
-@command()
+@command(auth=is_botowner)
 async def addprefix(bot, message, **kwargs):
     if not kwargs["string_arguments"]:
         await reply(message, ":question:")
@@ -22,7 +22,7 @@ async def addprefix(bot, message, **kwargs):
     database.add_global_prefix(kwargs["string_arguments"])
     await reply(message, ":thumbsup:")
 
-@command()
+@command(auth=is_botowner)
 async def removeprefix(bot, message, **kwargs):
     if not kwargs["string_arguments"]:
         await reply(message, ":question:")
