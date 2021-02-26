@@ -101,7 +101,11 @@ async def tf(bot, message, **kwargs):
         if self:
             await reply(message, ":x: You have not set up a timezone. You can do so using the `timezone` command.")
         else:
-            await reply(message, ":x: They have not set up a timezone. They can do so using the `timezone` command.")
+            user_pronouns = utils.get_user_pronouns(member.id)
+            has_or_have = "has"
+            if user_pronouns["plural"]:
+                has_or_have = "have"
+            await reply(message, f":x: {user_pronouns['subject'].title()} {has_or_have} not set up a timezone. {user_pronouns['subject'].title()} can do so using the `timezone` command.")
         return
 
     tz = pytz.timezone(user_data["timezone"])
@@ -110,4 +114,5 @@ async def tf(bot, message, **kwargs):
     if self:
         await reply(message, "Your current time is `" + string_time + "`.")
     else:
-        await reply(message, "Their current time is `" + string_time + "`.")
+        user_pronouns = utils.get_user_pronouns(member.id)
+        await reply(message, f"{user_pronouns['pos_determiner'].title()} current time is `" + string_time + "`.")
