@@ -2,13 +2,36 @@ from common import command, send, reply, is_botowner
 import os
 import sys
 import config
-import persistent
 import inspect
 import time
+import database
+import utils
 
 @command()
 async def hello(bot, message, **kwargs):
     await reply(message, ":wave:")
+
+@command()
+async def addprefix(bot, message, **kwargs):
+    if not kwargs["string_arguments"]:
+        await reply(message, ":question:")
+        return
+    if kwargs["string_arguments"] in database.fetch_global_prefixes():
+        await reply(message, ":x: Global prefix already exists!")
+        return
+    database.add_global_prefix(kwargs["string_arguments"])
+    await reply(message, ":thumbsup:")
+
+@command()
+async def removeprefix(bot, message, **kwargs):
+    if not kwargs["string_arguments"]:
+        await reply(message, ":question:")
+        return
+    if kwargs["string_arguments"] not in database.fetch_global_prefixes():
+        await reply(message, ":x: Global prefix doesn't exist!")
+        return
+    database.remove_global_prefix(kwargs["string_arguments"])
+    await reply(message, ":thumbsup:")
 
 @command(auth=is_botowner)
 async def _traceback(client, message, **kwargs):
@@ -55,22 +78,24 @@ async def _eval(bot, message, **kwargs):
 async def kill(bot, message, **kwargs):
     try:
         await reply(message, ":wave:")
-        persistent.persistent["restart_message"] = None
-        persistent.persistent["restart_timestamp"] = None
-        persistent.save()
     except:
         pass
-    await bot.logout()
+    database.close()
+    await bot.close()
 
 @command(auth=is_botowner)
 async def restart(bot, message, **kwargs):
     try:
         msg = await reply(message, "Restarting...")
-        persistent.persistent["restart_message"] = [msg.channel.id,msg.id]
-        persistent.persistent["restart_timestamp"] = time.time()
-        persistent.save()
+        info = {
+            "restart_channel":  msg.channel.id,
+            "restart_message": msg.id,
+            "restart_timestamp": time.time()
+        }
+        database.add_restarted_info(info)
     except:
         pass
+    database.close()
     await bot.close()
     os.execv(sys.executable, ['python3', "-u", "/home/ally/melody/bot.py"] + sys.argv[:1])
 

@@ -4,18 +4,26 @@ from client import bot
 import find_time
 from humanfriendly import format_timespan
 import time
-import persistent
 import tasks
 import find_time
+import logs
+import database
 
 current_reminders = {}
 
+
+def fetch_reminders():
+    reminders = database["reminders"]
+    return list(reminders.find())
+
+
+
 def create_all_reminders():
-    print("Creating reminder tasks.")
-    for reminder_id in persistent.persistent["reminders"]:
-        print("Creating " + str(reminder_id))
+    logs.info("Creating reminder tasks.")
+    for reminder_id in database.fetch_reminders():
+        logs.info("Creating " + str(reminder_id))
         current_reminders[reminder_id] = bot.loop.create_task(tasks.check_reminder(reminder_id))
-        print("Created " + str(reminder_id) + " successfully")
+        logs.info("Created " + str(reminder_id) + " successfully")
 
 @command()
 async def remind(bot, message, **kwargs):
@@ -39,13 +47,14 @@ async def remind(bot, message, **kwargs):
         "user_id": message.author.id,
         "channel_id": message.channel.id,
         "message_id": message.id,
-        "guild_id": "@me"
+        "guild_id": "@me",
+        "id": message.id
     }
     if dates[1] == "":
         reminder["text"] = "(No reminder text.)"
     if message.guild:
         reminder["guild_id"] = message.guild.id
-    persistent.persistent["reminders"][message.id] = reminder
+    database.add_reminder(reminder)
 
     current_reminders[message.id] = bot.loop.create_task(tasks.check_reminder(message.id))
 
@@ -58,7 +67,7 @@ async def remind(bot, message, **kwargs):
 async def reminders(bot, message, **kwargs):
     reminders = 0
     em = discord.Embed(title='Your reminders:')
-    for key,reminder in persistent.persistent["reminders"].items():
+    for key,reminder in database.fetch_reminders().items():
         if reminder["user_id"] == message.author.id:
             reminders += 1
             seconds = round(reminder["timestamp"] - time.time())
@@ -77,9 +86,10 @@ async def cancelreminder(bot, message, **kwargs):
     except ValueError:
         await reply(message, "Invalid reminder ID.")
         return
-    if id in persistent.persistent["reminders"]:
-        if persistent.persistent["reminders"][id]["user_id"] == message.author.id:
-            persistent.persistent["reminders"].pop(id)
+    reminders = database.fetch_reminders()
+    if id in reminders:
+        if reminders[id]["user_id"] == message.author.id:
+            database.remove_reminder(id)
             current_reminders[id].cancel()
             current_reminders.pop(id)
             await reply(message, "Canceled reminder.")
