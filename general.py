@@ -17,33 +17,82 @@ async def calc(bot, message, **kwargs):
 
 @command()
 async def setpronouns(bot, message, **kwargs):
-    if len(kwargs["arguments"]) < 5:
-        await reply(message, "To set your pronouns, please enter your preferred pronouns after the command, plus if they're plural pronouns or not (ex. she **is** and they **are**).\n\nExample: `m!setpronouns they them their theirs plural`\n(This system is temporary, it's bad I know)")
+    await message.add_reaction("✅")
+
+    pronouns = {}
+
+    dm_message = await message.author.send("Please enter your **Subject Pronoun**. (he/she/they/etc)\n(Letters only, limit of 5)")
+
+    def check(m):
+        return m.author.id == message.author.id and m.channel.id == dm_message.channel.id
+
+    response_message = await bot.wait_for('message', check=check)
+    pronouns["subject"] = response_message.content
+
+    if (not response_message.content.isalpha() or len(response_message.content) > 5):
+        await message.author.send("Content too long or includes non-letters, cancelled.")
         return
 
-    plural = kwargs["arguments"][4].lower() in ["true", "yes", "on", "plural"]
+    dm_message = await message.author.send("Please enter your **Object Pronoun**. (him/her/them/etc)\n(Letters only, limit of 5)")
+    response_message = await bot.wait_for('message', check=check)
+    pronouns["object"] = response_message.content
+    
+    if (not response_message.content.isalpha() or len(response_message.content) > 5):
+        await message.author.send("Content too long or includes non-letters, cancelled.")
+        return
 
-    pronouns = {
-        "subject": kwargs["arguments"][0],
-        "object": kwargs["arguments"][1],
-        "pos_determiner": kwargs["arguments"][2],
-        "pos_pronoun": kwargs["arguments"][3],
-        "plural": plural
-    }
+    dm_message = await message.author.send("Please enter your **Possessive Determiner**. (his/her/their/etc)\n(Letters only, limit of 5)")
+    response_message = await bot.wait_for('message', check=check)
+    pronouns["pos_determiner"] = response_message.content
 
-    database.set_pronouns(message.author.id, pronouns)
-    string = "Your pronouns have been updated.\n\n"
+    if (not response_message.content.isalpha() or len(response_message.content) > 5):
+        await message.author.send("Content too long or includes non-letters, cancelled.")
+        return
+
+    dm_message = await message.author.send("Please enter your **Possessive Pronoun**. (his/hers/theirs/etc)\n(Letters only, limit of 6)")
+    response_message = await bot.wait_for('message', check=check)
+    pronouns["pos_pronoun"] = response_message.content
+
+    if (not response_message.content.isalpha() or len(response_message.content) > 6):
+        await message.author.send("Content too long or includes non-letters, cancelled.")
+        return
+
+    dm_message = await message.author.send(f"Should it be **{pronouns['subject']} is** or **{pronouns['subject']} are**?")
+
+    await dm_message.add_reaction("1️⃣")
+    await dm_message.add_reaction("2️⃣")
+
+    def check(reaction, user):
+        return user.id == message.author.id and str(reaction.emoji) in ['1️⃣', '2️⃣']
+
+    reaction, user = await bot.wait_for('reaction_add', check=check)
+
+    pronouns["plural"] =  str(reaction.emoji) == "2️⃣"
 
     is_or_are = "is"
-    if plural:
+    if pronouns["plural"]:
         is_or_are = "are"
 
+    string = "**Is this correct?**\n\n"
     string += f"{message.author.name} went to the store.\n"
-    string += f"**{kwargs['arguments'][0].title()}** forgot to bring **{kwargs['arguments'][2]}** wallet with **{kwargs['arguments'][1]}**.\n"
-    string += f"**{kwargs['arguments'][0].title()} {is_or_are}** the owner of the wallet.\n"
-    string += f"The wallet is **{kwargs['arguments'][3]}**."
+    string += f"**{pronouns['subject'].title()}** forgot to bring **{pronouns['pos_determiner']}** wallet with **{pronouns['object']}**.\n"
+    string += f"**{pronouns['subject'].title()} {is_or_are}** the owner of the wallet.\n"
+    string += f"The wallet is **{pronouns['pos_pronoun']}**."
+    string += "\n\nIs this okay?"
+    dm_message = await message.author.send(string)
 
-    await reply(message, string)
+    await dm_message.add_reaction("✅")
+    await dm_message.add_reaction("❌")
+
+    def check(reaction, user):
+        return user.id == message.author.id and str(reaction.emoji) in ['✅', '❌']
+
+    reaction, user = await bot.wait_for('reaction_add', check=check)
+    if str(reaction.emoji) == "✅":
+        database.set_pronouns(message.author.id, pronouns)
+        await message.author.send("Your pronouns have been updated.")
+    else:
+        await message.author.send("Cancelled.")
 
 @command()
 async def pronouns(bot, message, **kwargs):
