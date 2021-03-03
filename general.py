@@ -125,12 +125,12 @@ async def timezone(bot, message, **kwargs):
         # They want their own timezone!
         user_data = database.fetch_user(message.author.id)
         if (not user_data) or (not user_data.get("timezone")):
-            await reply(message, ":x: You have not set up a timezone. You can do so using the `timezone` command.")
+            await reply(message, ":x: You have not set up a timezone. Examples of valid timezones: `UTC`, `America/Halifax`\n\nA list of valid timezones can be found at: <https://en.wikipedia.org/wiki/List_of_tz_database_time_zones>")
         else:
             await reply(message, f"Your timezone is currently set to `{user_data['timezone']}`.")
         return
     if not kwargs["string_arguments"] in pytz.all_timezones:
-        await reply(message, ":x: Please enter a valid timezone. Examples: `UTC`, `America/Halifax`, `CET`\n\nA list of valid timezones can be found at: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones")
+        await reply(message, ":x: Please enter a valid timezone. Examples: `UTC`, `America/Halifax`\n\nA list of valid timezones can be found at: <https://en.wikipedia.org/wiki/List_of_tz_database_time_zones>")
         return
     database.set_timezone(message.author.id, kwargs["string_arguments"])
     await reply(message, "Your timezone has been updated.")
