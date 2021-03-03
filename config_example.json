@@ -1,5 +1,18 @@
 {
     "token": "Njk3ODk3NjgyNDU0MTg0MDM2.EXEdcg.aXFhT21PcVdIQnFt",
     "owners": [155651120344203265],
-    "invokers": ["m!","🎵", "🎶"]
+    "invokers": ["m!","🎵", "🎶"],
+
+    "db-host": "localhost",
+    "db-port": "27017",
+    "db-name": "melody",
+    "db-auth": false,
+    "db-user": "username",
+    "db-pass": "password",
+
+    "color-default": "reset",
+    "color-info": "g",
+    "color-error": "b",
+    "color-warning": "d",
+    "color-background": "0"
 }

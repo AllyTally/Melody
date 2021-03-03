@@ -11,7 +11,10 @@ def connect():
     global database
     global settings
     logs.info("Connecting to the MongoDB service...")
-    client = pymongo.MongoClient(f"mongodb://{config.config['db-host']}:{config.config['db-port']}/")
+    if config.config['db-auth']:
+        client = pymongo.MongoClient(f"mongodb://{config.config['db-user']}:{config.config['db-pass']}@{config.config['db-host']}:{config.config['db-port']}/")
+    else:
+        client = pymongo.MongoClient(f"mongodb://{config.config['db-host']}:{config.config['db-port']}/")
     database = client[config.config['db-name']]
     logs.info("Connected to database!")
     logs.log("Database version " + client.server_info()["version"])
