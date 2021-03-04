@@ -5,6 +5,47 @@ import database
 import utils
 import pytz
 import datetime
+import json
+
+@command()
+async def help(bot, message, **kwargs):
+    with open('help.json', encoding='utf8') as json_file:
+        help_file = json.load(json_file)
+
+    if not kwargs["arguments"]:
+        embed = discord.Embed(description=help_file["header"])
+        embed.colour = discord.Colour.from_rgb(255,169,229)
+        for category in help_file["categories"].values():
+            embed.add_field(name=category["name"] + " Commands", value="```" + ", ".join([x for x in category["commands"]]) + "```")
+        await reply(message, embed=embed)
+        return
+
+    for category in help_file["categories"].values():
+        if kwargs["string_arguments"] in category["commands"]:
+            command = category["commands"][kwargs["string_arguments"]]
+            description  = "__**Usage:**__ `"
+            description += kwargs["string_arguments"]
+            
+            if command.get("usage"):
+                description += " " + command["usage"]
+            
+            description += "`\n"
+            
+            if command.get("example"):
+                description += "__**Example usage:**__ `"
+                description += kwargs["string_arguments"]
+                description += " " + command["example"]
+                description += "`\n"
+
+            description += command["description"]
+            embed = discord.Embed(title="Command information for " + kwargs["string_arguments"], description=description)
+            embed.colour = discord.Colour.from_rgb(255,169,229)
+            embed.set_footer(text="Arguments in [square brackets] are optional.")
+            await reply(message, embed=embed)
+            return
+
+    await reply(message, ":x: Unknown command.")
+    return
 
 @command()
 async def calc(bot, message, **kwargs):

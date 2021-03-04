@@ -14,6 +14,8 @@ def is_botowner(message):
     return message.author.id in config.config["owners"]
 
 def cleantext(message):
+    if not message:
+        return None
     message = re.sub(r"(http://|https://)?(?:discord(?:(?:.|.?dot.?)"
                      r"(?:gg|me|li|to|link)|app(?:.|.?dot.?)"
                      r"com\/invite)|(invite|disco)(?:.|.?dot.?)gg)\/"

@@ -1,0 +1,101 @@
+{
+    "header": "Melody is an [open source](https://github.com/AllyTally/Melody) Discord bot written by [**Ally \\🌠#1540**](https://ally.moe/).",
+    "categories": {
+        "general": {
+            "name": "General",
+            "commands": {
+                "help": {
+                    "description": "Lists the bot's commands.",
+                    "usage": "[command]",
+                    "example": "hello"
+                },
+                "hello": {
+                    "description": "Returns a wave emoji."
+                },
+                "calc": {
+                    "description": "Executes a math expression.",
+                    "usage": "<expression>",
+                    "example": "1 + 2"
+                },
+                "pronouns": {
+                    "description": "Lists your or someone else's pronouns.",
+                    "usage": "[user]",
+                    "example": "Ally"
+                },
+                "setpronouns": {
+                    "description": "Sets the pronouns the bot will use for you."
+                },
+                "timezone": {
+                    "description": "Lists your or someone else's timezone.",
+                    "usage": "[user]",
+                    "example": "Ally"
+                },
+                "tf": {
+                    "description": "Returns the current time for you or someone else.",
+                    "usage": "[user]",
+                    "example": "Ally"
+                },
+                "remind": {
+                    "description": "Sets a reminder.",
+                    "usage": "<time> <message>",
+                    "example": "3h do something"
+                },
+                "reminders": {
+                    "description": "Lists your active reminders."
+                },
+                "cancelreminder": {
+                    "description": "Cancels an active reminder.",
+                    "usage": "<reminder_id>",
+                    "example": "817122851998924800"
+                },
+                "int": {
+                    "description": "Describes the usage of an [internal command](https://vsix.dev/wiki/Internal_scripting) for the game VVVVVV.",
+                    "usage": "<command>",
+                    "example": "createcrewman"
+                },
+                "vtext": {
+                    "description": "Generates a textbox from the game VVVVVV.",
+                    "usage": "[color] <text>",
+                    "example": "cyan Hello!"
+                },
+                "vtscr": {
+                    "description": "Generates a textbox and script from the game VVVVVV.",
+                    "usage": "[color] <text>",
+                    "example": "cyan Hello!"
+                }
+            }
+        },
+        "owner": {
+            "name": "Owner",
+            "commands": {
+                "addprefix": {
+                    "description": "Adds a global prefix.",
+                    "usage": "<prefix>",
+                    "example": "m!"
+                },
+                "removeprefix": {
+                    "description": "Removes a global prefix.",
+                    "usage": "<prefix>",
+                    "example": "m!"
+                },
+                "clean": {
+                    "description": "Deletes the last messages from the bot."
+                },
+                "eval": {
+                    "description": "Evaluates Python code.",
+                    "usage": "<code>",
+                    "example": "print(\"hi!\")"
+                },
+                "traceback": {
+                    "description": "Returns the last error message."
+                },
+                "restart": {
+                    "description": "Restarts the bot."
+                },
+                "kill": {
+                    "description": "Stops the bot."
+                }
+            }
+        }
+    }
+}
