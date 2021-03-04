@@ -1,5 +1,6 @@
 {
     "header": "Melody is an [open source](https://github.com/AllyTally/Melody) Discord bot written by [**Ally \\🌠#1540**](https://ally.moe/).",
+    "footer": "For more information about a command, you can use `help <command_name>`.\nIf you like the bot and would like to support the creator, you can donate to her on [Patreon](https://patreon.com/AllyTally). All donations go towards hosting of the bot (which is expensive!), so it'd be greatly appreciated.",
     "categories": {
         "general": {
             "name": "General",

@@ -17,6 +17,7 @@ async def help(bot, message, **kwargs):
         embed.colour = discord.Colour.from_rgb(255,169,229)
         for category in help_file["categories"].values():
             embed.add_field(name=category["name"] + " Commands", value="```" + ", ".join([x for x in category["commands"]]) + "```")
+        embed.add_field(name="\u200B",value=help_file["footer"], inline=False)
         await reply(message, embed=embed)
         return
 
@@ -25,12 +26,12 @@ async def help(bot, message, **kwargs):
             command = category["commands"][kwargs["string_arguments"]]
             description  = "__**Usage:**__ `"
             description += kwargs["string_arguments"]
-            
+
             if command.get("usage"):
                 description += " " + command["usage"]
-            
+
             description += "`\n"
-            
+
             if command.get("example"):
                 description += "__**Example usage:**__ `"
                 description += kwargs["string_arguments"]
