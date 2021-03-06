@@ -11,6 +11,7 @@ import tasks
 import reminders
 import webserver
 import logs
+import warns
 
 # pylint: disable=unused-import
 import vtext

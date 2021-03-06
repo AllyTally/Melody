@@ -9,6 +9,14 @@ def has_pronouns(id):
         return True
 
 def get_user_pronouns(id):
+    if not id:
+        return {
+            "subject": "you",
+            "object": "you",
+            "pos_determiner": "your",
+            "pos_pronoun": "yours",
+            "plural": True
+        }
     user_data = database.fetch_user(id)
     if (not user_data) or (not user_data.get("pronouns")):
         return {

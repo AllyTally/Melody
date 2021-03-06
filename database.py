@@ -19,6 +19,12 @@ def connect():
     logs.info("Connected to database!")
     logs.log("Database version " + client.server_info()["version"])
 
+# unique ids
+def new_id():
+    misc = database["misc"]
+    misc.find_one_and_update({}, {'$inc': {'id': 1}},upsert=True)
+    return misc.find_one()["id"]
+
 # user data
 def fetch_user(id):
     users = database["users"]
@@ -45,6 +51,24 @@ def add_global_prefix(prefix):
 def remove_global_prefix(prefix):
     settings = database["settings"]
     settings.find_one_and_update({},{'$pull': {'prefixes': prefix}},upsert=True)
+
+# warnings
+
+def fetch_warnings(user_id, guild_id):
+    warnings = database["warnings"]
+    return list(warnings.find({"user_id": user_id, "guild_id": guild_id}))
+
+def add_warning(warning):
+    warnings = database["warnings"]
+    warnings.insert_one(warning)
+
+def remove_warning(to_remove):
+    warnings = database["warnings"]
+    warnings.delete_one({"id": to_remove})
+
+def fetch_warning(id):
+    warnings = database["warnings"]
+    return warnings.find_one({"id": id})
 
 # reminders
 

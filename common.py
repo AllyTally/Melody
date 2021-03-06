@@ -13,6 +13,11 @@ def command(auth=None, aliases=None):
 def is_botowner(message):
     return message.author.id in config.config["owners"]
 
+def is_moderator(message):
+    if not hasattr(message, "guild"):
+        return True
+    return message.author.guild_permissions.manage_messages
+
 def cleantext(message):
     if not message:
         return None
