@@ -9,6 +9,7 @@ from common import reply
 import config
 import tasks
 import reminders
+import random
 import webserver
 import logs
 import warns
@@ -106,6 +107,10 @@ async def on_message(message): # pylint: disable=too-many-branches
             #invoker = i
             break
     else:
+        if message.guild:
+            if message.guild.id == 110373943822540800:
+                if message.content == "thanks melody":
+                    await message.channel.send(random.choice(["i'm not even a mod bot", "i did so much", "yep", "that's me", "npnp", "i don't even have perms for that"]))
         return # This isn't a command!
     split_command = list(filter(None, unsplit_command.split(" ")))
     if split_command == []:
