@@ -78,7 +78,7 @@ async def setpronouns(bot, message, **kwargs):
     dm_message = await message.author.send("Please enter your **Object Pronoun**. (him/her/them/etc)\n(Letters only, limit of 5)")
     response_message = await bot.wait_for('message', check=check)
     pronouns["object"] = response_message.content
-    
+
     if (not response_message.content.isalpha() or len(response_message.content) > 5):
         await message.author.send("Content too long or includes non-letters, cancelled.")
         return
@@ -139,9 +139,14 @@ async def setpronouns(bot, message, **kwargs):
 @command()
 async def pronouns(bot, message, **kwargs):
     args = kwargs["string_arguments"]
+    member = None
+
     if args == "":
         args = None
-    member = utils.match_input(message.guild.members, discord.Member, args)
+
+    if message.guild:
+        member = utils.match_input(message.guild.members, discord.Member, args)
+
     if not member:
         member = message.author
     self = message.author.id == member.id
@@ -154,10 +159,12 @@ async def pronouns(bot, message, **kwargs):
 
     user_pronouns = utils.get_user_pronouns(member.id)
 
-    if self:
-        user_pronouns = utils.get_user_pronouns(None)
+    first_word = user_pronouns['pos_determiner'].title()
 
-    await reply(message, f"{user_pronouns['pos_determiner'].title()} pronouns are `{user_pronouns['subject']}/{user_pronouns['object']}/{user_pronouns['pos_determiner']}/{user_pronouns['pos_pronoun']}`.")
+    if self:
+        first_word = "Your"
+
+    await reply(message, f"{first_word} pronouns are `{user_pronouns['subject']}/{user_pronouns['object']}/{user_pronouns['pos_determiner']}/{user_pronouns['pos_pronoun']}`.")
 
 
 
@@ -183,7 +190,9 @@ async def tf(bot, message, **kwargs):
     args = kwargs["string_arguments"]
     if args == "":
         args = None
-    member = utils.match_input(message.guild.members, discord.Member, args)
+    member = None
+    if message.guild:
+        member = utils.match_input(message.guild.members, discord.Member, args)
     if not member:
         member = message.author
     self = message.author.id == member.id
