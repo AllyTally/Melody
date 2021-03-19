@@ -24,7 +24,7 @@ def time_to_seconds(number,unit):
         return number * 604800
     if unit in ["mo","month"]:
         now = datetime.datetime.now()
-        a_month = dateutil.relativedelta.relativedelta(months=1)
+        a_month = dateutil.relativedelta.relativedelta(months=number)
         then = now + a_month
         return (then-now).total_seconds()
     # We don't really want to keep reminders for a year...
