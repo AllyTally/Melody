@@ -9,6 +9,7 @@ import find_time
 import logs
 import database
 import utils
+import mutes
 
 @command()
 async def warnings(bot, message, **kwargs):
@@ -56,6 +57,7 @@ async def warnings(bot, message, **kwargs):
 @command(auth=is_moderator)
 async def warn(bot, message, **kwargs):
     points = 1
+    mute = True
     args = kwargs["arguments"]
     for index, string in enumerate(args):
         if string in ["-p", "--points"]:
@@ -72,7 +74,8 @@ async def warn(bot, message, **kwargs):
                 return
             args.pop(index + 1)
             args.pop(index)
-
+        elif string in ["-nm","--no-mute"]:
+            mute = False
     member = utils.match_input(message.guild.members, discord.Member, args[0])
 
     if not member:
@@ -82,13 +85,14 @@ async def warn(bot, message, **kwargs):
     args.pop(0)
     reason = " ".join(args)
 
+    mod_tag = message.author.name + "#" + message.author.discriminator
     warning = {
         "user_id": member.id,
         "id": database.new_id(),
         "guild_id": message.guild.id,
         "points": points,
         "reason": reason,
-        "mod_tag": message.author.name + "#" + message.author.discriminator,
+        "mod_tag": mod_tag,
         "mod_id": message.author.id
     }
 
@@ -96,10 +100,30 @@ async def warn(bot, message, **kwargs):
 
 
     message_contents = f"**{member.name}**#{member.discriminator} (`{member.id}`) has been warned"
-    if points == 1:
-        message_contents += "."
-    else:
-        message_contents += f" for **{points}** points."
+    if points != 1:
+        message_contents += f" for **{points}** points"
+
+    if mute:
+        warnings = database.fetch_warnings(member.id, message.guild.id)
+        total_points = 0
+        for warning in warnings:
+            total_points += warning['points']
+
+        if total_points > 1:
+            seconds_table = [1800, 3600, 7200, 14400, 28800, 43200, 86400]
+            seconds = 0
+            if total_points >= 8:
+                seconds = 86400
+            else:
+                seconds = seconds_table[total_points - 2]
+            mute_worked = await mutes.mute_user(member,message,reason,seconds,mod_tag)
+            if mute_worked:
+                message_contents += ", and has been muted for "
+                message_contents += format_timespan(seconds)
+            else:
+                message_contents += ".\n\nThe muted rule was not found, so the user was unable to be muted"
+
+    message_contents += "."
     await reply(message, message_contents)
 
 @command(auth=is_moderator)

@@ -32,7 +32,7 @@ def time_to_seconds(number,unit):
     #    return number * 31536000
     return 0
 
-def find_time(input_string,ignore_in=False):
+def find_time(input_string,ignore_in=False,use_time_flag=False):
     # First, we want to try and match time like 12h 2m 13s.
     # TODO: support written out numbers like twelve hours, two minutes and thirteen seconds.
 
@@ -41,13 +41,23 @@ def find_time(input_string,ignore_in=False):
     starting_string = "" # in case the word "in" is in the middle of the message, we should keep what comes before it
 
     if (not ignore_in):
-
         in_match = re.search("(?:^|\W)(?:me\s)?(in)(?:\s+)", input_string) # does it contain "in"?
         if in_match: # we found the word "in" with a space after it!
             start = in_match.end(0) # okay, the time starts after the word in, probably
 
             temp_start = in_match.start(0) # for below
-            starting_string = input_string[0:temp_start] # keep what comes before "in"! note, this includes the space which we don't need to strip
+            starting_string = input_string[0:temp_start] + " " # keep what comes before "in"!
+
+    time_flag_found = False
+    if (use_time_flag):
+        time_match = re.search("(?:^|\W)?(--time|-t)(?:\s+)", input_string) # does it contain "-t" or "--time"?
+        if time_match: # we found the flag "--time" with a space after it!
+            time_flag_found = True
+            start = time_match.end(0) # okay, the time starts after the word in, probably
+
+            temp_start = time_match.start(0) # for below
+            starting_string = input_string[0:temp_start] + " " # keep what comes before "--time"!
+
 
     valid = True
     built_time = []
@@ -91,6 +101,8 @@ def find_time(input_string,ignore_in=False):
     if len(built_time) == 0:
         if (not ignore_in):
             return find_time(input_string,ignore_in=True)
+        if (use_time_flag):
+            return [False, time_flag_found]
         return False
     while (True):
         total_seconds += time_to_seconds(int(built_time[index][0]), built_time[index][1])
@@ -122,3 +134,4 @@ def find_time(input_string,ignore_in=False):
 #print(find_time("me in 5h to something"),"true")
 #print(find_time("5h 2s h"),"true")
 #print(find_time("twelve hours"),"true")
+#print(find_time("awesome -t 2m test", True, True))

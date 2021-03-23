@@ -16,8 +16,6 @@ def fetch_reminders():
     reminders = database["reminders"]
     return list(reminders.find())
 
-
-
 def create_all_reminders():
     logs.info("Creating reminder tasks.")
     for reminder_id in database.fetch_reminders():

@@ -70,6 +70,28 @@ def fetch_warning(id):
     warnings = database["warnings"]
     return warnings.find_one({"id": id})
 
+# mutes
+
+def fetch_timed_mute(user_id):
+    mutes = database["mutes"]
+    return mutes.find_one({"user_id": user_id})
+
+def fetch_timed_mutes():
+    mutes = database["mutes"]
+    mutes_dict = {}
+    for mute in mutes.find():
+        mutes_dict[mute["id"]] = mute
+    return mutes_dict
+
+def remove_timed_mute(user_id):
+    mutes = database["mutes"]
+    mutes.delete_one({"user_id": user_id})
+
+def add_timed_mute(mute):
+    mutes = database["mutes"]
+    mutes.insert_one(mute)
+
+
 # reminders
 
 def fetch_reminders():

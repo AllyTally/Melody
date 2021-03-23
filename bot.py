@@ -13,6 +13,7 @@ import random
 import webserver
 import logs
 import warns
+import mutes
 
 # pylint: disable=unused-import
 import vtext
@@ -58,6 +59,8 @@ async def on_ready():
         bot.loop.create_task(tasks.random_game())
         logs.info("Starting reminder tasks...")
         reminders.create_all_reminders()
+        logs.info("Starting mute tasks...")
+        mutes.create_all_mutes()
         logs.info("Starting webserver task...")
         bot.loop.create_task(webserver.start_server())
         logs.info("All tasks started successfully.")

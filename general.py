@@ -154,7 +154,7 @@ async def pronouns(bot, message, **kwargs):
         if self:
             await reply(message, ":x: You have not set up your pronouns. You can do so using `setpronouns`.")
         else:
-            await reply(message, ":x: They have not set up a timezone. They can do so using `setpronouns`.")
+            await reply(message, ":x: They have not set up their pronouns. They can do so using `setpronouns`.")
         return
 
     user_pronouns = utils.get_user_pronouns(member.id)
