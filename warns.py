@@ -59,6 +59,8 @@ async def warn(bot, message, **kwargs):
     points = 1
     mute = True
     args = kwargs["arguments"]
+    remove_index = False
+    index_to_remove = 0
     for index, string in enumerate(args):
         if string in ["-p", "--points"]:
             try:
@@ -72,10 +74,15 @@ async def warn(bot, message, **kwargs):
             if points < 0:
                 await reply(message, ":x: Invalid amount of points. No warning given.")
                 return
-            args.pop(index + 1)
-            args.pop(index)
+            remove_index = True
+            index_to_remove = index
         elif string in ["-nm","--no-mute"]:
             mute = False
+
+    if remove_index:
+        args.pop(index_to_remove + 1)
+        args.pop(index_to_remove)
+
     member = utils.match_input(message.guild.members, discord.Member, args[0])
 
     if not member:
