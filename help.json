@@ -74,10 +74,20 @@
                     "usage": "<user> [--points, -p points] [--no-mute, -nm]",
                     "example": "Ally --points 1 Posting memes in general -nm"
                 },
+                "pardon": {
+                    "description": "Removes a warning from a user.",
+                    "usage": "<user>",
+                    "example": "Ally Didn't mean to give this to her, whoops"
+                },
                 "mute": {
                     "description": "Gives the user the \"Muted\" role for a period of time, by default forever.",
                     "usage": "<user> [--time, -t time]",
                     "example": "Ally --time 2h You need to take a break"
+                },
+                "unmute": {
+                    "description": "Removes the \"Muted\" role from a user.",
+                    "usage": "<user>",
+                    "example": "Ally Time's up"
                 }
             }
         },
