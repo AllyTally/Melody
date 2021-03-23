@@ -66,6 +66,21 @@
                 }
             }
         },
+        "mod": {
+            "name": "Moderator",
+            "commands": {
+                "warn": {
+                    "description": "Gives a user a warning and mutes them depending on how many warning points they have. The amount of points the warning gives can be specified.",
+                    "usage": "<user> [--points, -p points] [--no-mute, -nm]",
+                    "example": "warn Ally --points 1 Posting memes in general -nm"
+                },
+                "mute": {
+                    "description": "Gives the user the \"Muted\" role for a period of time, by default forever.",
+                    "usage": "<user> [--time, -t time]",
+                    "example": "mute Ally --time 2h You need to take a break"
+                }
+            }
+        },
         "owner": {
             "name": "Owner",
             "commands": {
