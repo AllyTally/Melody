@@ -135,3 +135,4 @@ def find_time(input_string,ignore_in=False,use_time_flag=False):
 #print(find_time("5h 2s h"),"true")
 #print(find_time("twelve hours"),"true")
 #print(find_time("awesome -t 2m test", True, True))
+#print(find_time("12h2d gex"))

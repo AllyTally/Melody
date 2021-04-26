@@ -19,6 +19,27 @@ def connect():
     logs.info("Connected to database!")
     logs.log("Database version " + client.server_info()["version"])
 
+# reaction roles
+def fetch_reaction_events(guild_id, channel_id, message_id):
+    reactions = database["reactions"]
+    return list(reactions.find({"guild_id": guild_id, "channel_id": channel_id, "message_id": message_id}))
+
+def add_reaction_event(reaction_event):
+    reactions = database["reactions"]
+    reactions.insert_one(reaction_event)
+
+def remove_reaction_role_by_unicode(emote, message_id):
+    reactions = database["reactions"]
+    return reactions.delete_one({"emoji_unicode": emote, "message_id": message_id})
+
+def remove_reaction_role_by_id(emote, message_id):
+    reactions = database["reactions"]
+    return reactions.delete_one({"emoji_id": emote, "message_id": message_id})
+
+def remove_reaction_role_by_role_id(role, message_id):
+    reactions = database["reactions"]
+    return reactions.delete_one({"role_id": role, "message_id": message_id})
+
 # unique ids
 def new_id():
     misc = database["misc"]

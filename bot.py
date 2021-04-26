@@ -14,6 +14,7 @@ import webserver
 import logs
 import warns
 import mutes
+import reaction_events
 
 # pylint: disable=unused-import
 import vtext
@@ -97,6 +98,31 @@ async def on_error(event, *args, **kwargs): # pylint: disable=unused-argument
 #@bot.event
 #async def on_message_delete(message):
 #    snipes[message.channel.id] = message
+
+@bot.event
+async def on_raw_reaction_add(payload):
+    reaction_events_list = database.fetch_reaction_events(payload.guild_id, payload.channel_id, payload.message_id)
+    for reaction_event in reaction_events_list:
+        if (not reaction_event["custom_emoji"] and reaction_event["emoji_unicode"] == payload.emoji.name) \
+        or (reaction_event["custom_emoji"] and reaction_event["emoji_id"] == payload.emoji.id):
+            if reaction_event["type"] == "role":
+                guild = await bot.fetch_guild(payload.guild_id)
+                role = guild.get_role(reaction_event["role_id"])
+                await payload.member.add_roles(role, reason=f"Reaction role")
+                return
+
+@bot.event
+async def on_raw_reaction_remove(payload):
+    reaction_events_list = database.fetch_reaction_events(payload.guild_id, payload.channel_id, payload.message_id)
+    for reaction_event in reaction_events_list:
+        if (not reaction_event["custom_emoji"] and reaction_event["emoji_unicode"] == payload.emoji.name) \
+        or (reaction_event["custom_emoji"] and reaction_event["emoji_id"] == payload.emoji.id):
+            if reaction_event["type"] == "role":
+                guild = await bot.fetch_guild(payload.guild_id)
+                member = await guild.fetch_member(payload.user_id)
+                role = guild.get_role(reaction_event["role_id"])
+                await member.remove_roles(role, reason=f"Reaction role")
+                return
 
 @bot.event
 async def on_message(message): # pylint: disable=too-many-branches
