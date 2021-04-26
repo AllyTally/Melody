@@ -46,7 +46,7 @@
                 },
                 "cancelreminder": {
                     "description": "Cancels an active reminder.",
-                    "usage": "<reminder_id>",
+                    "usage": "<reminder id>",
                     "example": "817122851998924800"
                 },
                 "int": {
@@ -88,6 +88,16 @@
                     "description": "Removes the \"Muted\" role from a user.",
                     "usage": "<user>",
                     "example": "Ally Time's up"
+                },
+                "addreactionrole": {
+                    "description": "Attaches a reaction role to a message. A reaction role is a reaction on a message which gives you a role when you click on it.",
+                    "usage": "<emoji> <role> <message link>",
+                    "example": "🍎 apple https://discord.com/channels/622979976987279361/822483782249480202/836291045405753345"
+                },
+                "removereactionrole": {
+                    "description": "Removes a reaction role from a message.",
+                    "usage": "<message id> <emoji or role>",
+                    "example": "836291045405753345 🍎"
                 }
             }
         },
