@@ -3,6 +3,7 @@ from common import command, reply
 from client import bot
 import find_time
 from humanfriendly import format_timespan
+import math
 import time
 import tasks
 import find_time
@@ -37,7 +38,6 @@ async def remind(bot, message, **kwargs):
     if seconds < 1 or seconds >= 31536000:
         await reply(message, "Please enter a valid time. Examples: `tomorrow`, `10h`, `3 days`")
         return
-    readable_time = format_timespan(seconds)
     reminder = {
         "timestamp": round(time.time()) + seconds,
         "called_timestamp": round(time.time()),
@@ -57,9 +57,9 @@ async def remind(bot, message, **kwargs):
     current_reminders[message.id] = bot.loop.create_task(tasks.check_reminder(message.id))
 
     if dates[1] == "":
-        await reply(message, f"{message.author.mention}, I'll mention you in {readable_time}.")
+        await reply(message, f"I'll mention you <t:{time.time() + seconds}:R>.")
     else:
-        await reply(message, f"{message.author.mention}, in {readable_time}: {dates[1]}")
+        await reply(message, f"<t:{math.floor(time.time() + seconds)}:R>: {dates[1]}")
 
 @command()
 async def reminders(bot, message, **kwargs):
@@ -68,9 +68,7 @@ async def reminders(bot, message, **kwargs):
     for key,reminder in database.fetch_reminders().items():
         if reminder["user_id"] == message.author.id:
             reminders += 1
-            seconds = round(reminder["timestamp"] - time.time())
-            readable_time = format_timespan(seconds)
-            em.add_field(name=f"{key}: In {readable_time}", value=f"[{reminder['text']}](https://discordapp.com/channels/{str(reminder['guild_id'])}/{str(reminder['channel_id'])}/{str(reminder['message_id'])})",inline=False)
+            em.add_field(name=f"{key}: <t:{math.floor(reminder['timestamp'])}:R>", value=f"[{reminder['text']}](https://discordapp.com/channels/{str(reminder['guild_id'])}/{str(reminder['channel_id'])}/{str(reminder['message_id'])})",inline=False)
     if reminders == 0:
         await reply(message, "You have no reminders.")
         return

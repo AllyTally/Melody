@@ -38,11 +38,11 @@ async def check_reminder(reminder_id):
         
         # And finally, send the reminder.
         logs.info("Reminder: Sending reminder")
-        await channel.send(content=f"<@{current_reminder['user_id']}>, {readable_time}: {cleantext(current_reminder['text'])}\n\nhttps://discordapp.com/channels/{str(current_reminder['guild_id'])}/{str(current_reminder['channel_id'])}/{str(current_reminder['message_id'])}")
+        await channel.send(content=f"<@{current_reminder['user_id']}>, <t:{current_reminder['called_timestamp']}:R>: {cleantext(current_reminder['text'])}\n\nhttps://discordapp.com/channels/{str(current_reminder['guild_id'])}/{str(current_reminder['channel_id'])}/{str(current_reminder['message_id'])}")
 
     except:
-        return                                                                 # It should be handled next time the bot starts
         logs.warn("Reminder: Couldn't send reminder!")                         # We couldn't send the reminder, so return early
+        return                                                                 # It should be handled next time the bot starts
 
     logs.info("Reminder: Removing reminder")
     database.remove_reminder(reminder_id)                                      # Remove the reminder from the reminders list
@@ -72,8 +72,8 @@ async def check_timed_mutes(mute_id):
 
 
     except:
-        return                                                          # It should be handled next time the bot starts
         logs.warn("Mutes: Couldn't unmute user!")                       # We couldn't unmute the user, so return early
+        return                                                          # It should be handled next time the bot starts
 
     logs.info("Mutes: Removing mute")
     database.remove_timed_mute(member.id)                               # Remove the mute from the mutes list
