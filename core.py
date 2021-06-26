@@ -97,7 +97,7 @@ async def restart(bot, message, **kwargs):
         pass
     database.close()
     await bot.close()
-    os.execv(sys.executable, ['python3', "-u", "/home/ally/melody/bot.py"] + sys.argv[:1])
+    os.execv(sys.executable, ['python3.8', "-u", "/home/ally/melody/bot.py"] + sys.argv[:1])
 
 @command(auth=is_botowner)
 async def clean(bot, message, **kwargs):
